@@ -21,6 +21,10 @@ DB_CONFIG = {
     "dbname": os.getenv("DB_NAME", "dental_clinic"),
     "user": os.getenv("DB_USER", "postgres"),
     "password": os.getenv("DB_PASSWORD", "password"),
+    "keepalives": 1,
+    "keepalives_idle": 30,
+    "keepalives_interval": 10,
+    "keepalives_count": 5,
 }
 
 # --- Google ---
