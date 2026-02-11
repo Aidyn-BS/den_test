@@ -1,0 +1,16 @@
+.git
+.gitignore
+.claude/
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.md
+*.log
+.DS_Store
+Thumbs.db
+postgres_data/
+docker-compose.yml
+.env.example

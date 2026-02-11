@@ -1,0 +1,42 @@
+meta:
+  environment: docker
+  toolchain:
+    name: docker
+
+build:
+  dockerfile: Dockerfile
+
+run:
+  containerPort: 5000
+
+# Переменные окружения — в панели Amvera:
+#
+# --- Обязательные ---
+# OPENROUTER_API_KEY=sk-or-...
+# AI_MODEL=openai/gpt-4o-mini
+# GREEN_API_INSTANCE_ID=...
+# GREEN_API_TOKEN=...
+# DB_HOST=... (из Amvera PostgreSQL)
+# DB_PORT=5432
+# DB_NAME=dental_clinic
+# DB_USER=postgres
+# DB_PASSWORD=...
+# ADMIN_PHONE=+77072080253
+# TIMEZONE=Asia/Almaty
+#
+# --- Google (credentials как base64) ---
+# GOOGLE_CREDENTIALS_B64=... (base64 от google_credentials.json)
+# GOOGLE_CALENDAR_ID=...@group.calendar.google.com
+# GOOGLE_SHEETS_ID=...
+#
+# --- Telegram ---
+# TELEGRAM_BOT_TOKEN=...
+#
+# --- Клиника ---
+# CLINIC_NAME=Стоматология «Улыбка»
+# CLINIC_ADDRESS=ул. Абая 100, Алматы
+# CLINIC_PHONE=+77074519193
+#
+# --- Опционально ---
+# GROQ_API_KEY=... (для голосовых сообщений)
+# FLASK_PORT=5000
