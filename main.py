@@ -2,6 +2,7 @@
 Точка входа — Flask сервер с webhook для GREEN-API (WhatsApp).
 """
 
+import os
 import time
 import threading
 import logging
@@ -100,6 +101,12 @@ logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Проверка обязательных переменных окружения
+_required_env = ["OPENROUTER_API_KEY", "GREEN_API_INSTANCE_ID", "GREEN_API_TOKEN"]
+_missing = [k for k in _required_env if not os.getenv(k)]
+if _missing:
+    logger.warning(f"Missing environment variables: {', '.join(_missing)}. Some features may not work.")
 
 # Подавляем шумные логи от Telegram polling и httpx
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -231,7 +238,6 @@ _telegram_transport = None
 def _init_telegram():
     global _telegram_transport
     if _telegram_transport is None:
-        import os
         if os.getenv("TELEGRAM_BOT_TOKEN"):
             try:
                 tg = get_transport("telegram")
@@ -244,8 +250,6 @@ _init_telegram()
 
 
 if __name__ == "__main__":
-    import os
-
     port = int(os.getenv("FLASK_PORT", 5000))
 
     logger.info(f"Starting dental bot on port {port}")

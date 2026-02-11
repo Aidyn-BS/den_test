@@ -281,6 +281,8 @@ def _call_function(name: str, args: dict, phone: str, is_admin: bool) -> dict:
         v = validator.validate_reschedule_time(new_date, new_time)
         if not v["valid"]:
             return {"error": v["error"]}
+        if v["corrected_time"]:
+            new_time = v["corrected_time"]
 
         client_phone = phone if not is_admin else None
 

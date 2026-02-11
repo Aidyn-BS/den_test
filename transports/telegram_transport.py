@@ -39,9 +39,13 @@ class TelegramTransport(BaseTransport):
         if not self._app:
             return False
         try:
+            loop = self._get_loop()
+            if not loop:
+                logger.warning("Telegram event loop not ready, cannot send message")
+                return False
             import asyncio
             coro = self._app.bot.send_message(chat_id=chat_id, text=text)
-            asyncio.run_coroutine_threadsafe(coro, self._get_loop()).result(timeout=10)
+            asyncio.run_coroutine_threadsafe(coro, loop).result(timeout=10)
             return True
         except Exception as e:
             logger.error(f"Telegram send_to_chat error: {e}")

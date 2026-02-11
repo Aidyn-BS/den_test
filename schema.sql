@@ -190,6 +190,13 @@ CREATE TABLE IF NOT EXISTS telegram_users (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Индекс для поиска telegram chat_id по номеру телефона
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_telegram_users_phone') THEN
+        CREATE INDEX idx_telegram_users_phone ON telegram_users(phone);
+    END IF;
+END $$;
+
 -- Администратор (замени на свой номер)
 INSERT INTO admin_users (phone, name) VALUES
     ('+77072080253', 'Администратор')
