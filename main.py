@@ -101,6 +101,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Подавляем шумные логи от Telegram polling и httpx
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("telegram.ext.Updater").setLevel(logging.WARNING)
+logging.getLogger("telegram.ext.Application").setLevel(logging.WARNING)
+
 # Flask
 app = Flask(__name__)
 
