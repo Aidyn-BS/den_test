@@ -13,4 +13,5 @@ venv/
 Thumbs.db
 postgres_data/
 docker-compose.yml
-.env.example
+.env
+.env.*

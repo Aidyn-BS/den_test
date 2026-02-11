@@ -161,7 +161,7 @@ class TelegramTransport(BaseTransport):
             return ConversationHandler.END
 
         def _run_bot():
-            """Запуск бота в отдельном event loop."""
+            """Запуск бота в отдельном event loop (без signal handlers)."""
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             self._loop = loop
@@ -180,8 +180,16 @@ class TelegramTransport(BaseTransport):
             app.add_handler(conv_handler)
             app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-            logger.info("Telegram bot started (polling)")
-            loop.run_until_complete(app.run_polling(drop_pending_updates=True))
+            async def _start_polling():
+                await app.initialize()
+                await app.updater.start_polling(drop_pending_updates=True)
+                await app.start()
+                logger.info("Telegram bot started (polling)")
+                # Keep running until thread is killed
+                while self._running:
+                    await asyncio.sleep(1)
+
+            loop.run_until_complete(_start_polling())
 
         thread = threading.Thread(target=_run_bot, daemon=True)
         thread.start()
