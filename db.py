@@ -35,17 +35,53 @@ def _get_pool():
 
 @contextmanager
 def get_conn():
-    """Контекстный менеджер — берёт соединение из пула и возвращает обратно."""
+    """Контекстный менеджер — берёт соединение из пула и возвращает обратно.
+
+    Автоматически обнаруживает и заменяет «мёртвые» соединения (SSL drop,
+    таймаут сервера).  Если соединение сломалось в момент работы — пул
+    пересоздаётся, чтобы вычистить остальные устаревшие соединения.
+    """
+    global _pool
     pool = _get_pool()
     conn = pool.getconn()
+
+    # Если соединение уже закрыто на стороне клиента — отдаём его в утиль
+    # и берём свежее.
+    if conn.closed:
+        try:
+            pool.putconn(conn, close=True)
+        except Exception:
+            pass
+        conn = pool.getconn()
+
+    returned = False
     try:
         yield conn
         conn.commit()
+    except (psycopg2.InterfaceError, psycopg2.OperationalError):
+        # Соединение сломалось во время работы.  Сбрасываем весь пул —
+        # вероятно, несколько соединений уже «мёртвые».
+        logger.warning("DB connection lost, resetting pool", exc_info=True)
+        try:
+            pool.putconn(conn, close=True)
+        except Exception:
+            pass
+        returned = True
+        try:
+            pool.closeall()
+        except Exception:
+            pass
+        _pool = None
+        raise
     except Exception:
-        conn.rollback()
+        try:
+            conn.rollback()
+        except Exception:
+            pass
         raise
     finally:
-        pool.putconn(conn)
+        if not returned:
+            pool.putconn(conn)
 
 
 # ==================== Клиенты ====================
